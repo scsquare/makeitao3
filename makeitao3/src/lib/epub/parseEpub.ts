@@ -140,7 +140,6 @@ function filenameStem(path: string): string {
 }
 
 function looksLikeTocPage(rawHtml: string): boolean {
-  const lower = rawHtml.toLowerCase()
   if (
     /epub:type\s*=\s*["'][^"']*\btoc\b/i.test(rawHtml) ||
     /\btype\s*=\s*["'][^"']*\btoc\b/i.test(rawHtml)

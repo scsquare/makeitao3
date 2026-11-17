@@ -1,13 +1,14 @@
 {
   "name": "makeitao3",
+  "homepage": "https://scsquare.github.io/makeitao3",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "dompurify": "^3.4.18",
@@ -26,6 +27,7 @@
     "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
+    "gh-pages": "^6.3.0",
     "globals": "^17.13.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1",
