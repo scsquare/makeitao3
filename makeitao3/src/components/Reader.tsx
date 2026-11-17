@@ -13,14 +13,6 @@ type Props = {
   onBack: () => void
 }
 
-function chapterHeading(index: number, title: string, total: number): string {
-  const n = index + 1
-  // If title already looks like "Chapter N", keep as-is; else prefix
-  if (/^chapter\s+\d+/i.test(title)) return title
-  if (total <= 1 && !title) return 'Chapter 1'
-  return `Chapter ${n}: ${title}`
-}
-
 export function Reader({ bookId, onBack }: Props) {
   const [book, setBook] = useState<BookRecord | null>(null)
   const [chapterIndex, setChapterIndex] = useState(0)
@@ -142,13 +134,7 @@ export function Reader({ bookId, onBack }: Props) {
         <h2 className="title heading">{book.title}</h2>
         <div id="chapters">
           <div className="chapter" id={`chapter-${chapterIndex + 1}`}>
-            <h3 className="title">
-              {chapterHeading(
-                chapterIndex,
-                chapter.title,
-                book.chapters.length,
-              )}
-            </h3>
+            <h3 className="title">{chapter.title}</h3>
             <div
               className="userstuff module"
               role="article"

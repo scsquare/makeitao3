@@ -346,7 +346,7 @@ button.action:hover {
 /* == LIBRARY UI == */
 
 .library-intro {
-  max-width: 40em;
+  /*max-width: 40em;*/
   margin-bottom: 1.5em;
 }
 

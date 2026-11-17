@@ -15,6 +15,11 @@ function dirname(path: string): string {
   return i >= 0 ? path.slice(0, i) : ''
 }
 
+function basename(path: string): string {
+  const i = path.lastIndexOf('/')
+  return i >= 0 ? path.slice(i + 1) : path
+}
+
 function resolvePath(baseDir: string, relative: string): string {
   if (!relative) return baseDir
   if (relative.startsWith('/')) return relative.replace(/^\/+/, '')
@@ -67,22 +72,39 @@ async function readZipText(
   return file.async('text')
 }
 
-function parseNavTitles(
-  navHtml: string,
-  opfDir: string,
+function mergeTitleMaps(
+  into: Map<string, string>,
+  from: Map<string, string>,
+): void {
+  for (const [href, title] of from) {
+    if (title && !into.has(href)) into.set(href, title)
+  }
+}
+
+/** Parse link text → resolved href titles from any HTML/XHTML TOC-like page. */
+function parseHtmlLinkTitles(
+  html: string,
+  baseDir: string,
 ): Map<string, string> {
   const titles = new Map<string, string>()
-  const doc = new DOMParser().parseFromString(navHtml, 'text/html')
-  const links = Array.from(doc.querySelectorAll('nav a[href], a[href]'))
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const links = Array.from(doc.querySelectorAll('a[href]'))
   for (const a of links) {
     const href = a.getAttribute('href')
-    if (!href) continue
+    if (!href || href.startsWith('#') || /^(https?:|mailto:)/i.test(href)) {
+      continue
+    }
     const [pathPart] = href.split('#')
-    const resolved = resolvePath(opfDir, pathPart)
+    if (!pathPart) continue
+    const resolved = resolvePath(baseDir, decodeURIComponent(pathPart))
     const title = textContent(a)
     if (title && !titles.has(resolved)) titles.set(resolved, title)
   }
   return titles
+}
+
+function parseNavTitles(navHtml: string, baseDir: string): Map<string, string> {
+  return parseHtmlLinkTitles(navHtml, baseDir)
 }
 
 function parseNcxTitles(ncxXml: string, opfDir: string): Map<string, string> {
@@ -95,7 +117,7 @@ function parseNcxTitles(ncxXml: string, opfDir: string): Map<string, string> {
     const src = getAttr(content, 'src')
     if (!src) continue
     const [pathPart] = src.split('#')
-    const resolved = resolvePath(opfDir, pathPart)
+    const resolved = resolvePath(opfDir, decodeURIComponent(pathPart))
     const title = textContent(text)
     if (title && !titles.has(resolved)) titles.set(resolved, title)
   }
@@ -112,6 +134,47 @@ function firstHeadingTitle(html: string): string | undefined {
   return t || undefined
 }
 
+function filenameStem(path: string): string {
+  const name = basename(path).replace(/\.[^.]+$/, '')
+  return name || path
+}
+
+function looksLikeTocPage(rawHtml: string): boolean {
+  const lower = rawHtml.toLowerCase()
+  if (
+    /epub:type\s*=\s*["'][^"']*\btoc\b/i.test(rawHtml) ||
+    /\btype\s*=\s*["'][^"']*\btoc\b/i.test(rawHtml)
+  ) {
+    return true
+  }
+
+  const doc = new DOMParser().parseFromString(rawHtml, 'text/html')
+  const heading = textContent(doc.querySelector('h1, h2, h3'))
+  if (/table of contents/i.test(heading)) return true
+
+  const internal = Array.from(doc.querySelectorAll('a[href]')).filter((a) => {
+    const href = a.getAttribute('href') ?? ''
+    return (
+      /\.x?html?(?:#|$)/i.test(href) &&
+      !/^(https?:|mailto:)/i.test(href) &&
+      textContent(a).length > 0
+    )
+  })
+  return internal.length >= 8
+}
+
+function lookupTitle(
+  titleMap: Map<string, string>,
+  href: string,
+): string | undefined {
+  if (titleMap.has(href)) return titleMap.get(href)
+  const base = basename(href)
+  for (const [key, title] of titleMap) {
+    if (basename(key) === base) return title
+  }
+  return undefined
+}
+
 export async function parseEpub(file: Blob): Promise<ParsedBook> {
   const zip = await JSZip.loadAsync(await file.arrayBuffer())
 
@@ -121,9 +184,10 @@ export async function parseEpub(file: Blob): Promise<ParsedBook> {
   }
 
   const container = parseXml(containerXml)
-  const rootfile = findByLocalName(container, 'rootfile').find((el) =>
-    (getAttr(el, 'media-type') || '').includes('package+xml'),
-  ) ?? findByLocalName(container, 'rootfile')[0]
+  const rootfile =
+    findByLocalName(container, 'rootfile').find((el) =>
+      (getAttr(el, 'media-type') || '').includes('package+xml'),
+    ) ?? findByLocalName(container, 'rootfile')[0]
 
   const opfPath = getAttr(rootfile, 'full-path')
   if (!opfPath) throw new Error('Not a valid EPUB: missing OPF path')
@@ -134,7 +198,6 @@ export async function parseEpub(file: Blob): Promise<ParsedBook> {
   const opf = parseXml(opfXml)
   const opfDir = dirname(opfPath)
 
-  // Prefer dc:creator / creator
   const authorEl =
     firstByLocalName(opf, 'creator') ??
     qsa(opf, '[property="dcterms:creator"]').at(0)
@@ -158,31 +221,35 @@ export async function parseEpub(file: Blob): Promise<ParsedBook> {
   const spine = findByLocalName(opf, 'itemref')
   if (spine.length === 0) throw new Error('Not a valid EPUB: empty spine')
 
-  // Titles from nav or ncx
-  let titleMap = new Map<string, string>()
+  const titleMap = new Map<string, string>()
+
   const navItem = [...manifest.values()].find((i) =>
     i.properties.split(/\s+/).includes('nav'),
   )
   if (navItem) {
     const navPath = resolvePath(opfDir, navItem.href)
     const navHtml = await readZipText(zip, navPath)
-    if (navHtml) titleMap = parseNavTitles(navHtml, dirname(navPath))
-  }
-  if (titleMap.size === 0) {
-    const ncxItem = [...manifest.values()].find(
-      (i) =>
-        i.mediaType === 'application/x-dtbncx+xml' ||
-        i.href.toLowerCase().endsWith('.ncx'),
-    )
-    if (ncxItem) {
-      const ncxPath = resolvePath(opfDir, ncxItem.href)
-      const ncxXml = await readZipText(zip, ncxPath)
-      if (ncxXml) titleMap = parseNcxTitles(ncxXml, opfDir)
+    if (navHtml) {
+      mergeTitleMaps(titleMap, parseNavTitles(navHtml, dirname(navPath)))
     }
   }
 
-  const chapters: Chapter[] = []
-  let chapterNum = 0
+  const ncxItem = [...manifest.values()].find(
+    (i) =>
+      i.mediaType === 'application/x-dtbncx+xml' ||
+      i.href.toLowerCase().endsWith('.ncx'),
+  )
+  if (ncxItem) {
+    const ncxPath = resolvePath(opfDir, ncxItem.href)
+    const ncxXml = await readZipText(zip, ncxPath)
+    if (ncxXml) {
+      mergeTitleMaps(titleMap, parseNcxTitles(ncxXml, dirname(ncxPath)))
+    }
+  }
+
+  // Collect spine HTML paths first so we can scan for content TOC pages
+  type SpineHtml = { idref: string; href: string; raw: string }
+  const spineHtml: SpineHtml[] = []
 
   for (const itemref of spine) {
     const idref = getAttr(itemref, 'idref')
@@ -201,19 +268,29 @@ export async function parseEpub(file: Blob): Promise<ParsedBook> {
     const href = resolvePath(opfDir, item.href)
     const raw = await readZipText(zip, href)
     if (raw == null) continue
+    spineHtml.push({ idref, href, raw })
+  }
 
-    const bodyHtml = extractBodyHtml(raw)
+  for (const entry of spineHtml) {
+    if (!looksLikeTocPage(entry.raw)) continue
+    mergeTitleMaps(
+      titleMap,
+      parseHtmlLinkTitles(entry.raw, dirname(entry.href)),
+    )
+  }
+
+  const chapters: Chapter[] = []
+
+  for (const entry of spineHtml) {
+    const bodyHtml = extractBodyHtml(entry.raw)
     const html = sanitizeChapterHtml(bodyHtml)
-    chapterNum += 1
-
-    const fromNav = titleMap.get(href)
+    const fromToc = lookupTitle(titleMap, entry.href)
     const fromHeading = firstHeadingTitle(html)
-    const titleText =
-      fromNav || fromHeading || `Chapter ${chapterNum}`
+    const titleText = fromToc || fromHeading || filenameStem(entry.href)
 
     chapters.push({
-      id: idref || `chapter-${chapterNum}`,
-      href,
+      id: entry.idref || `item-${chapters.length + 1}`,
+      href: entry.href,
       title: titleText,
       html,
     })

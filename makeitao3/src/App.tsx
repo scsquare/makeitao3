@@ -55,8 +55,7 @@ export default function App() {
     <div id="main" className="clear">
       <h1 className="heading">makeitao3</h1>
       <p className="library-intro">
-        Upload an EPUB to read it in an Archive of Our Own–style layout. Books and
-        reading progress stay in this browser.
+        Upload an EPUB to read it in an Archive of Our Own–style layout. Books and reading progress stay in this browser.
       </p>
       {error ? <p className="flash error">{error}</p> : null}
       {loading ? (
