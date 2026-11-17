@@ -114,7 +114,12 @@ export function Reader({ bookId, onBack }: Props) {
   const chapter = book.chapters[chapterIndex]
   const hasPrevious = chapterIndex > 0
   const hasNext = chapterIndex < book.chapters.length - 1
-
+  const chapterNav = <>      <ChapterNav
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+        onPrevious={() => goToChapter(chapterIndex - 1)}
+        onNext={() => goToChapter(chapterIndex + 1)}
+      /></>
   return (
     <div className="work">
       <p className="reader-toolbar">
@@ -123,12 +128,7 @@ export function Reader({ bookId, onBack }: Props) {
         </button>
       </p>
 
-      <ChapterNav
-        hasPrevious={hasPrevious}
-        hasNext={hasNext}
-        onPrevious={() => goToChapter(chapterIndex - 1)}
-        onNext={() => goToChapter(chapterIndex + 1)}
-      />
+      {chapterNav}
 
       <div id="workskin">
         <h2 className="title heading">{book.title}</h2>
@@ -143,6 +143,8 @@ export function Reader({ bookId, onBack }: Props) {
           </div>
         </div>
       </div>
+
+      {chapterNav}
     </div>
   )
 }
