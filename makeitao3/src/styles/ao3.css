@@ -1,0 +1,455 @@
+/*
+  Adapted from otwarchive public/stylesheets/site/2.0/
+  (01-core, 02-elements, 05-region-main, 08-actions, 14-group-preface, 21-userstuff)
+  Trimmed for makeitao3 v1 reader + library.
+*/
+
+@font-face {
+  font-family: 'Lucida Grande';
+  src: local('Lucida Grande'), local('LucidaSansUnicode'), local('Lucida Sans Unicode');
+  font-display: swap;
+}
+
+/* Optional webfonts: drop files into /public/fonts/ and uncomment
+@font-face {
+  font-family: 'Lucida Grande';
+  src: url('/fonts/lucida-grande.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Georgia;
+  src: url('/fonts/georgia.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+*/
+
+/* == CORE / ELEMENTS == */
+
+body {
+  background: #fff;
+  color: #2a2a2a;
+  font: 100%/1.125 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Helvetica,
+    sans-serif, 'GNU Unifont';
+  margin: 0;
+  padding: 0;
+}
+
+.heading,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  word-wrap: break-word;
+}
+
+h1 {
+  font-size: 2.5em;
+  line-height: 1;
+  margin: 0.5em 0;
+}
+
+h2 {
+  font-size: 2.143em;
+  line-height: 1;
+  margin: 0.429em 0;
+}
+
+h3 {
+  font-size: 1.286em;
+  line-height: 1;
+  margin: 0.5375em 0;
+}
+
+a,
+a:link {
+  color: #900;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #666;
+}
+
+a:hover {
+  color: #999;
+}
+
+p {
+  margin: 0.643em 0;
+}
+
+/* == MAIN REGION == */
+
+#main {
+  font-size: 0.875em;
+  line-height: 1.286;
+  margin: auto;
+  padding: 0.5em 2.5em 3.5em;
+  position: relative;
+  max-width: 72em;
+  min-height: 450px;
+}
+
+#main.clear::after {
+  content: ' ';
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+/* == ACTIONS / CHAPTER NAV == */
+
+.actions * {
+  display: inline;
+}
+
+ul.actions {
+  padding: 0.429em 0.25em 0.25em 0;
+  float: right;
+  text-align: center;
+  list-style: none;
+  margin: 0 0 1em;
+}
+
+.actions a,
+.actions a:link,
+.action,
+.action:link,
+button.action {
+  background: #eee;
+  color: #444;
+  width: auto;
+  font-weight: 400;
+  font-size: 100%;
+  line-height: 1.286;
+  height: 1.286em;
+  vertical-align: middle;
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid #bbb;
+  border-bottom: 1px solid #aaa;
+  background-image: linear-gradient(#fff 2%, #ddd 95%, #bbb 100%);
+  border-radius: 0.25em;
+  box-shadow: none;
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Helvetica,
+    sans-serif;
+  cursor: pointer;
+  box-sizing: content-box;
+}
+
+.actions a:hover,
+.action:hover,
+button.action:hover {
+  color: #900;
+  border-top: 1px solid #999;
+  border-left: 1px solid #999;
+  box-shadow: inset 2px 2px 2px #bbb;
+}
+
+.actions li a {
+  margin: 0.375em auto;
+}
+
+.work.navigation.actions {
+  float: none;
+  text-align: left;
+  margin: 0 0 1.5em;
+  padding: 0;
+}
+
+.work.navigation.actions li {
+  margin-right: 0.5em;
+}
+
+.reader-toolbar {
+  margin: 0 0 1em;
+}
+
+/* == WORK TITLE / CHAPTER HEADER == */
+
+#workskin .title.heading,
+#workskin h2.title {
+  display: block;
+  text-align: center;
+  border: 0;
+  clear: right;
+  font-family: Georgia, serif;
+}
+
+.chapter > h3.title {
+  display: block;
+  text-align: center;
+  font-family: Georgia, serif;
+  margin: 1.5em 0 1em;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.25em;
+}
+
+/* == USERSTUFF / WORKSKIN == */
+
+.userstuff {
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.userstuff p,
+.userstuff details {
+  margin: 1.286em auto;
+  padding: 0;
+}
+
+.userstuff dl {
+  margin: 1.5em 0;
+  border: 0;
+}
+
+.userstuff dl dl {
+  width: 90%;
+  margin: auto;
+}
+
+.userstuff dt {
+  display: block;
+  font-weight: bold;
+}
+
+.userstuff dd {
+  display: block;
+  margin-block-start: 1.25em;
+  margin-block-end: 1.25em;
+  margin-inline-start: 3em;
+}
+
+.userstuff dd p {
+  margin: 0;
+  padding: 0;
+}
+
+.userstuff ul {
+  margin: 1.125em auto;
+  padding: 0 1em;
+}
+
+.userstuff ul li {
+  display: list-item;
+}
+
+.userstuff li,
+.userstuff ol ul li {
+  font-weight: normal;
+  display: list-item;
+  list-style-type: disc;
+  margin-block-start: 0.75em;
+  margin-inline-end: 0;
+  margin-block-end: 0.75em;
+  margin-inline-start: 1.75em;
+}
+
+.userstuff ol {
+  margin: 0.75em auto;
+  padding: 0 1.5em;
+}
+
+.userstuff ol li {
+  list-style-type: decimal;
+  margin-block-start: 0.75em;
+  margin-inline-end: 0;
+  margin-block-end: 0.75em;
+  margin-inline-start: 1.75em;
+}
+
+.userstuff ol li ol li {
+  list-style-type: lower-alpha;
+}
+
+.userstuff ol li ol li ol li {
+  list-style-type: lower-roman;
+}
+
+.userstuff h1 {
+  text-align: center;
+}
+
+.userstuff h2 {
+  color: #333;
+  margin: 1.5em 0;
+  display: block;
+}
+
+.userstuff h3 {
+  font-weight: 500;
+  padding: 0.125em;
+  border-bottom: 0.25em double #333;
+}
+
+.userstuff h4 {
+  font-weight: 700;
+}
+
+.userstuff h5 {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.userstuff h6 {
+  font-size: 0.975em;
+  border-bottom: 1px solid;
+}
+
+.userstuff blockquote {
+  line-height: 1.5;
+  margin-inline-start: 1.5em;
+  padding: 0.75em;
+  border-inline-start: 2px solid #999;
+}
+
+.userstuff blockquote blockquote {
+  padding: 0.25em;
+  border: 0;
+}
+
+.userstuff hr {
+  width: 33%;
+  margin: 0.875em auto 1.2525em auto;
+  border: 1px solid;
+}
+
+.userstuff img {
+  max-width: 100%;
+  height: auto;
+}
+
+#workskin {
+  font-size: 1.08em;
+  margin: auto;
+  padding: 0 0.25em;
+  max-width: 72em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  clear: both;
+}
+
+#workskin .module {
+  float: none;
+}
+
+/* == LIBRARY UI == */
+
+.library-intro {
+  max-width: 40em;
+  margin-bottom: 1.5em;
+}
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  margin-top: 2em;
+}
+
+.library-header .heading {
+  margin: 0;
+  font-size: 1.714em;
+}
+
+.library-empty {
+  color: #666;
+}
+
+.library-list {
+  list-style: none;
+  margin: 1em 0 0;
+  padding: 0;
+  border-top: 1px solid #ddd;
+}
+
+.library-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.75em 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.library-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25em;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.library-open:hover .library-title {
+  color: #900;
+}
+
+.library-title {
+  font-family: Georgia, serif;
+  font-size: 1.286em;
+  color: #900;
+}
+
+.library-author {
+  color: #2a2a2a;
+}
+
+.library-meta {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.upload-dropzone {
+  border: 2px dashed #bbb;
+  padding: 1.5em;
+  text-align: center;
+  background: #fafafa;
+  margin: 1em 0;
+}
+
+.upload-dropzone.dragging {
+  border-color: #900;
+  background: #fff8f8;
+}
+
+.upload-dropzone.busy {
+  opacity: 0.7;
+}
+
+.upload-dropzone .action {
+  margin-top: 0.5em;
+}
+
+.flash.error {
+  color: #900;
+  border: 1px solid #900;
+  background: #fee;
+  padding: 0.5em 0.75em;
+}
+
+.reader-error .action {
+  margin-top: 0.75em;
+}
